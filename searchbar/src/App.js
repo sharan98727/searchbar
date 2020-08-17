@@ -1,5 +1,5 @@
 import React from 'react';
-import Searchresults from './searchresults';
+// import Searchresults from './searchresults';
 
 let data = [
     {name:'india'},
@@ -7,6 +7,8 @@ let data = [
     {name:'usa'},
     {name:'russia'},
     {name:'spain'},
+    {name:'indonesia'},
+    {name:'india'}
 ]
 
 class App extends React.Component{
@@ -14,6 +16,7 @@ class App extends React.Component{
     state = {
         input:'',
         database:data,
+        suggestions:[]
     }
 
     handlechange = e =>{
@@ -25,19 +28,23 @@ class App extends React.Component{
 
     makecall = () =>{
           //console.log('entered');
-           const suggestions = this.state.database.filter(country =>{
+           let suggestion = this.state.database.filter((country) =>{
                
-               if(country.name.startsWith(this.state.input))
-               {
+               return country.name.startsWith(this.state.input) ;
+            //    if(country.name.startsWith(this.state.input))
+            //    {
                    
-                   return country.name;
-               }
+            //        return country.name;
+            //    }
             //    else
             //    {
-            //         return 'no related searches'
+            //         //  'no related searches'
             //    }
           })
-         console.log(suggestions);
+        this.setState({
+           suggestions:suggestion,
+        })
+        console.log(this.state.suggestions);
     }
 
     debounce = (fn,delay) =>{
@@ -55,7 +62,25 @@ class App extends React.Component{
     betterfunction = this.debounce(this.makecall,2000)
 
     render(){
-        return(
+    
+    let itemstodisplay = this.state.suggestions.map(item => {
+        if(this.state.suggestions.length!==0)
+            return(
+            
+              <div>
+                 {item.name}
+               </div>
+            
+            )
+        else 
+        {
+            return (
+                <div>none</div>
+            )
+        }
+        })
+    
+     return( 
     <div>
         <form >
             <input placeholder='search anything'
@@ -65,7 +90,10 @@ class App extends React.Component{
              style={{margin:'50px 300px 0px 500px'}}
              />
         </form>
-        <Searchresults item={this.state.input}/>
+        <div style={{margin:'50px 300px 0px 500px'}}>
+        {itemstodisplay}
+        </div>
+        {/* <Searchresults item={this.state.input}/> */}
     </div>     
         )
     }
