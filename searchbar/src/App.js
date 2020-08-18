@@ -8,7 +8,7 @@ let data = [
     {name:'russia'},
     {name:'spain'},
     {name:'indonesia'},
-    {name:'india'}
+    // {name:'india'}
 ]
 
 class App extends React.Component{
@@ -16,7 +16,8 @@ class App extends React.Component{
     state = {
         input:'',
         database:data,
-        suggestions:[]
+        suggestions:[],
+        searchdata:[]
     }
 
     handlechange = e =>{
@@ -61,13 +62,34 @@ class App extends React.Component{
     
     betterfunction = this.debounce(this.makecall,2000)
 
+    handleclick = e =>{
+        // console.log(e.target.innerHTML);
+        this.setState({
+            input:e.target.innerHTML,
+        })
+    }
+
+    handlesubmit = e =>{
+        e.preventDefault();
+        fetch(`https://api.unsplash.com/search/photos/?client_id=x00KRDCTU-TSnOwMefUykvB47JTFRXXnQoZN6wSjH9Q&query=${this.state.input}`)
+        .then(res => res.json())
+        .then(data => {
+            console.log(data.results);
+            this.setState({
+                searchdata:data.results,
+            })
+            console.log(this.state.searchdata);
+        })
+        // console.log(this.state.searchdata);
+    }
+
     render(){
     
     let itemstodisplay = this.state.suggestions.map(item => {
         if(this.state.suggestions.length!==0)
             return(
             
-              <div>
+              <div onClick={this.handleclick}>
                  {item.name}
                </div>
             
@@ -79,10 +101,18 @@ class App extends React.Component{
             )
         }
         })
+
+        let displaysearchdata = this.state.searchdata.map(item =>{
+            return(
+                <div>
+                    <img src={item.urls.small} alt=""></img>
+                </div>
+            )
+        })
     
      return( 
     <div>
-        <form >
+        <form onSubmit={this.handlesubmit}>
             <input placeholder='search anything'
              value={this.state.input} 
              onChange={this.handlechange}
@@ -90,8 +120,11 @@ class App extends React.Component{
              style={{margin:'50px 300px 0px 500px'}}
              />
         </form>
-        <div style={{margin:'50px 300px 0px 500px'}}>
+        <div style={{margin:'0px 300px 0px 500px'}}>
         {itemstodisplay}
+        </div>
+        <div>
+            {displaysearchdata}
         </div>
         {/* <Searchresults item={this.state.input}/> */}
     </div>     
