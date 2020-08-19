@@ -8,8 +8,13 @@ let data = [
     {name:'russia'},
     {name:'spain'},
     {name:'indonesia'},
+    {name:'indiana'},
+    {name:'india people'}
     // {name:'india'}
-]
+];
+
+let itemstodisplay;
+
 
 class App extends React.Component{
 
@@ -17,7 +22,8 @@ class App extends React.Component{
         input:'',
         database:data,
         suggestions:[],
-        searchdata:[]
+        searchdata:[],
+        keydown:0,
     }
 
     handlechange = e =>{
@@ -28,7 +34,7 @@ class App extends React.Component{
     }
 
     makecall = () =>{
-          //console.log('entered');
+        //   console.log(event);
            let suggestion = this.state.database.filter((country) =>{
                
                return country.name.startsWith(this.state.input) ;
@@ -49,7 +55,7 @@ class App extends React.Component{
     }
 
     debounce = (fn,delay) =>{
-
+        
         let callapi;
        return function(){ 
         clearTimeout(callapi);
@@ -60,17 +66,20 @@ class App extends React.Component{
     } 
     }
     
-    betterfunction = this.debounce(this.makecall,2000)
+    betterfunction = this.debounce(this.makecall,800)
 
     handleclick = e =>{
-        // console.log(e.target.innerHTML);
+         console.log(e.target);
         this.setState({
             input:e.target.innerHTML,
+            
         })
+        
     }
 
-    handlesubmit = e =>{
+    handlesubmit = (e) =>{
         e.preventDefault();
+       
         fetch(`https://api.unsplash.com/search/photos/?client_id=x00KRDCTU-TSnOwMefUykvB47JTFRXXnQoZN6wSjH9Q&query=${this.state.input}`)
         .then(res => res.json())
         .then(data => {
@@ -83,13 +92,29 @@ class App extends React.Component{
         // console.log(this.state.searchdata);
     }
 
+    handlekeydown = e =>{
+        // this.setState({
+        //     input:e.target.innerHTML,
+        // })
+        
+        if(e.keyCode ===40)
+        {
+            console.log(this.state.keydown);
+            console.log(itemstodisplay);
+            this.setState({
+                input:itemstodisplay[this.state.keydown].props.children,
+                keydown:this.state.keydown+1,
+            })
+        }
+    }
+
     render(){
     
-    let itemstodisplay = this.state.suggestions.map(item => {
+     itemstodisplay = this.state.suggestions.map(item => {
         if(this.state.suggestions.length!==0)
             return(
             
-              <div onClick={this.handleclick}>
+              <div onClick={this.handleclick} className="suggestions" >
                  {item.name}
                </div>
             
@@ -104,8 +129,8 @@ class App extends React.Component{
 
         let displaysearchdata = this.state.searchdata.map(item =>{
             return(
-                <div>
-                    <img src={item.urls.small} alt=""></img>
+                <div style={{padding:'7px',}}>
+                    <img src={item.urls.small} alt="" width="300px" height="300px"></img>
                 </div>
             )
         })
@@ -116,14 +141,15 @@ class App extends React.Component{
             <input placeholder='search anything'
              value={this.state.input} 
              onChange={this.handlechange}
-             onKeyUp={this.betterfunction}
+             onKeyUp={(e)=>this.betterfunction(e)}
+             onKeyDown={this.handlekeydown}
              style={{margin:'50px 300px 0px 500px'}}
              />
         </form>
-        <div style={{margin:'0px 300px 0px 500px'}}>
+        <div style={{margin:'0px 300px 0px 500px',}}>
         {itemstodisplay}
         </div>
-        <div>
+        <div style={{display:'flex',flexWrap:'wrap',justifyContent:'center'}}>
             {displaysearchdata}
         </div>
         {/* <Searchresults item={this.state.input}/> */}
